@@ -1,14 +1,16 @@
-import React,{ useEffect, useState } from  "react";
+import React, { useEffect, useState } from "react";
 import AppRouter from "components/Router";
 import { authService } from "fbase";
 
 function App() {
   const [init, setInit] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  useEffect(()=>{
+  const [userObj, setUserObj] = useState(null);
+  useEffect(() => {
     authService.onAuthStateChanged((user) => {
-      if(user){
+      if (user) {
         setIsLoggedIn(true);
+        setUserObj(user);
       } else {
         setIsLoggedIn(false);
       }
@@ -16,10 +18,10 @@ function App() {
     });
   }, []);
   return (
-  <>
-    {init ? <AppRouter isLoggedIn={isLoggedIn} />  : "Initialiging..."}
-    <footer>&copy; {new Date().getFullYear()} Bufgix</footer>
-  </>
+    <>
+      {init ? <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} /> : "Initialiging..."}
+      <footer>&copy; {new Date().getFullYear()} Bufgix</footer>
+    </>
   );
 }
 
