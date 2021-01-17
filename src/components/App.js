@@ -15,8 +15,7 @@ function App() {
   }, []);
   return (
     <>
-      {init ? <AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} /> : "Initialiging..."}
-      <footer>&copy; {new Date().getFullYear()} Bufgix</footer>
+      {init ? (<AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} />) : ("Initialiging...")}
     </>
   );
 }
