@@ -1,26 +1,18 @@
-import Nweet from "components/Nweet";
+import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { dbService, storageService } from "fbase";
-import React, { useEffect, useState } from "react";
+import Nweet from "components/Nweet";
 
 const Home = ({ userObj }) => {
     const [nweet, setNweet] = useState("");
     const [nweets, setNweets] = useState([]);
-    const [attachment, setAttachment] = useState();
-    const getNweets = async () => {
-        const dbNweets = await dbService.collection("nweets").get();
-        dbNweets.forEach((document) => {
-            const nweetObject = {
-                ...document.data(),
-                id: document.id,
-            };
-            setNweets(prev => [nweetObject, ...prev]);
-        });
-    };
+    const [attachment, setAttachment] = useState("");
     useEffect(() => {
-        getNweets();
-        dbService.collection("nweets").onSnapshot(snapShot => {
-            const nweetArray = snapShot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        dbService.collection("nweets").onSnapshot(snapshot => {
+            const nweetArray = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
             setNweets(nweetArray);
         });
     }, []);
@@ -28,7 +20,9 @@ const Home = ({ userObj }) => {
         event.preventDefault();
         let attachmentUrl = "";
         if (attachment !== "") {
-            const attachmentRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+            const attachmentRef = storageService
+                .ref()
+                .child(`${userObj.uid}/${uuidv4()}`);
             const response = await attachmentRef.putString(attachment, "data_url");
             attachmentUrl = await response.ref.getDownloadURL();
         }
@@ -36,14 +30,16 @@ const Home = ({ userObj }) => {
             text: nweet,
             createdAt: Date.now(),
             creatorId: userObj.uid,
-            attachmentUrl
+            attachmentUrl,
         };
         await dbService.collection("nweets").add(nweetObj);
         setNweet("");
         setAttachment("");
     };
     const onChange = (event) => {
-        const { target: { value } } = event;
+        const {
+            target: { value },
+        } = event;
         setNweet(value);
     };
     const onFileChange = (event) => {
